@@ -14,38 +14,41 @@ func main() {
 
 	var items []string
 	for {
-		item := readline("")
+		item := readline()
 		if item == "" {
 			break
 		}
 		items = append(items, item)
 	}
-	checkErr()
+	check(scanner.Err())
 
-	var r byRank
+	r := make(byRank, 0, len(items))
 	for _, g := range items {
 		heap.Push(&r, g)
-		checkErr()
 	}
 
-	fmt.Println()
-	for i := range r {
-		fmt.Printf("%d. %s\n", i+1, r[i])
+	items = items[0:0]
+	for i := 0; len(r) > 0; i++ {
+		item := heap.Pop(&r).(string)
+		items = append(items, item)
+	}
+
+	for i := range items {
+		fmt.Printf("%d. %s\n", i+1, items[i])
 	}
 }
 
 var scanner = bufio.NewScanner(os.Stdin)
 
-func readline(prompt string, args ...interface{}) string {
-	fmt.Printf(prompt, args...)
+func readline() string {
 	if !scanner.Scan() {
 		return ""
 	}
 	return scanner.Text()
 }
 
-func checkErr() {
-	if err := scanner.Err(); err != nil {
+func check(err error) {
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v", err)
 		os.Exit(1)
 	}
@@ -63,7 +66,8 @@ func (r byRank) Swap(i, j int) {
 
 func (r byRank) Less(i, j int) bool {
 	p := promptui.Select{Label: "Which ranks higher", Items: []string{r[i], r[j]}}
-	choice, _, _ := p.Run()
+	choice, _, err := p.Run()
+	check(err)
 	return choice == 0
 }
 
