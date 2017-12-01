@@ -5,6 +5,8 @@ import (
 	"container/heap"
 	"fmt"
 	"os"
+
+	"github.com/manifoldco/promptui"
 )
 
 func main() {
@@ -60,7 +62,9 @@ func (r byRank) Swap(i, j int) {
 }
 
 func (r byRank) Less(i, j int) bool {
-	return readline(`1. "%s" or 2. "%s"? `, r[i], r[j]) == "1"
+	p := promptui.Select{Label: "Which ranks higher", Items: []string{r[i], r[j]}}
+	choice, _, _ := p.Run()
+	return choice == 0
 }
 
 func (r *byRank) Push(x interface{}) {
